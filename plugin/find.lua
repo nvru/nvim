@@ -27,6 +27,7 @@ function _G.native_find(text, _)
   end
   return vim.fn.matchfuzzy(result, text)
 end
+
 vim.opt.findfunc = 'v:lua.native_find'
 
 vim.keymap.set('n', '<leader>f', ':find ', { silent = false })

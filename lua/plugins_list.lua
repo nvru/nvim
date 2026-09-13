@@ -15,6 +15,8 @@ return {
   -- UI & Git Utilities
   'lewis6991/gitsigns.nvim',
   'j-hui/fidget.nvim',
+  'folke/tokyonight.nvim',
+  'nvim-lualine/lualine.nvim',
 
   -- File Management & Editing
   'lambdalisue/suda.vim',

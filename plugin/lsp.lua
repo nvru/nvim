@@ -246,7 +246,10 @@ vim.lsp.config['tailwindcss'] = {
 
 -- Go
 vim.lsp.config('gopls', {
+  cmd = { 'gopls' },
   capabilities = caps, -- Integrates LSP capabilities with Neovim (e.g., completion)
+  filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+  root_markers = { 'go.mod', 'go.work', '.git' },
   settings = {
     gopls = {
       gofumpt = true, -- Use gofumpt instead of gofmt for stricter and uniform formatting
@@ -270,7 +273,7 @@ vim.lsp.config('gopls', {
   },
 })
 
--- Nix LSP (nil)
+-- Nix
 vim.lsp.config['nil_ls'] = {
   cmd = { 'nil' },
   filetypes = { 'nix' },
@@ -303,14 +306,20 @@ vim.lsp.config['zls'] = {
 }
 
 -- Rust
-vim.lsp.config('rust_analyzer', {
+vim.lsp.config['rust_analyzer'] = {
+  cmd = { 'rust-analyzer' },
+  filetypes = { 'rust' },
+  root_markers = { 'Cargo.toml', 'rust-project.json', '.git' },
   capabilities = caps,
   settings = {
     ['rust-analyzer'] = {
       cargo = { allFeatures = true },
+      formatting = {
+        command = { 'rustfmt' },
+      },
     },
   },
-})
+}
 
 -- Haskell
 vim.lsp.config['hls'] = {
@@ -374,51 +383,25 @@ vim.lsp.config('clangd', {
   },
 
   capabilities = caps,
-  initialization_options = {
-    fallbackFlags = { '-xc-header' },
+  init_options = {
+    fallbackFlags = { '-std=c23' }, -- Default to C23
   },
-  init_options = {},
 })
 
+-- Ruby
 vim.lsp.config('ruby_lsp', {
   capabilities = caps,
   filetypes = { 'ruby' },
   root_markers = { '.git', 'Gemfile' },
 })
 
+-- Toml
 vim.lsp.config['templ'] = {
   cmd = { 'templ', 'lsp' },
   filetypes = { 'templ' },
   root_markers = { 'go.mod', '.git' },
   capabilities = caps,
 }
-vim.lsp.config('prettierd', {
-  cmd = { 'prettierd', '--stdio' },
-
-  filetypes = {
-    'javascript',
-    'javascriptreact',
-    'typescript',
-    'typescriptreact',
-    'css',
-    'scss',
-    'less',
-    'html',
-    'json',
-    'yaml',
-    'markdown',
-  },
-
-  root_markers = {
-    '.prettierrc',
-    '.prettierrc.json',
-    '.prettierrc.js',
-    'package.json',
-    '.git',
-  },
-
-  capabilities = caps,
-})
 
 -- Other LSP Configurations
 vim.lsp.config('lemminx', { capabilities = caps })

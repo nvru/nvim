@@ -27,6 +27,8 @@ end
 
 M.format_enabled = load_state()
 
+M.priority = 'lsp'
+
 M.formatters = {
   lua = 'stylua -',
 
@@ -102,6 +104,66 @@ vim.keymap.set('n', '<leader>ll', function()
   vim.notify('Auto format: ' .. (M.format_enabled and 'ON' or 'OFF'), vim.log.levels.INFO, { title = 'Formatter' })
 end, { desc = 'Toggle auto format' })
 
+-- Toggle formatter priority: LSP first or external tool first
+vim.keymap.set('n', '<leader>lp', function()
+  M.priority = M.priority == 'lsp' and 'tool' or 'lsp'
+  vim.notify('Format priority: ' .. M.priority, vim.log.levels.INFO, { title = 'Formatter' })
+end, { desc = 'Toggle format priority (lsp/tool)' })
+
+local function run_tool(bufnr, ft)
+  local cmd = M.formatters[ft]
+
+  if cmd and formatter_available(cmd) then
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+
+    if bufname == '' then
+      return false
+    end
+
+    local resolved = cmd:gsub('%%', vim.fn.shellescape(bufname))
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    local input = table.concat(lines, '\n')
+    local output = vim.fn.system(resolved, input)
+
+    if vim.v.shell_error ~= 0 then
+      vim.notify('Formatter failed: ' .. cmd, vim.log.levels.ERROR, { title = 'Formatter' })
+      return false
+    end
+
+    local formatted = vim.split(output, '\n', { plain = true })
+
+    if formatted[#formatted] == '' then
+      table.remove(formatted)
+    end
+
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, formatted)
+    return true
+  end
+
+  return false
+end
+
+local function run_lsp(bufnr)
+  local clients = vim.lsp.get_clients {
+    bufnr = bufnr,
+  }
+
+  for _, client in ipairs(clients) do
+    if client:supports_method 'textDocument/formatting' then
+      vim.lsp.buf.format {
+        bufnr = bufnr,
+        async = false,
+        filter = function(c)
+          return c.id == client.id
+        end,
+      }
+      return true
+    end
+  end
+
+  return false
+end
+
 vim.api.nvim_create_autocmd('BufWritePre', {
   callback = function(args)
     -- Check module-level persistent state, global override, or buffer-local override if present
@@ -117,51 +179,14 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 
     local bufnr = args.buf
     local ft = vim.bo[bufnr].filetype
-    local cmd = M.formatters[ft]
 
-    -- External CLI Formatter
-    if cmd and formatter_available(cmd) then
-      local bufname = vim.api.nvim_buf_get_name(bufnr)
-
-      if bufname == '' then
-        return
+    if M.priority == 'lsp' then
+      if not run_lsp(bufnr) then
+        run_tool(bufnr, ft)
       end
-
-      local resolved = cmd:gsub('%%', vim.fn.shellescape(bufname))
-      local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-      local input = table.concat(lines, '\n')
-      local output = vim.fn.system(resolved, input)
-
-      if vim.v.shell_error ~= 0 then
-        vim.notify('Formatter failed: ' .. cmd, vim.log.levels.ERROR, { title = 'Formatter' })
-        return
-      end
-
-      local formatted = vim.split(output, '\n', { plain = true })
-
-      if formatted[#formatted] == '' then
-        table.remove(formatted)
-      end
-
-      vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, formatted)
-      return
-    end
-
-    -- LSP Fallback
-    local clients = vim.lsp.get_clients {
-      bufnr = bufnr,
-    }
-
-    for _, client in ipairs(clients) do
-      if client:supports_method 'textDocument/formatting' then
-        vim.lsp.buf.format {
-          bufnr = bufnr,
-          async = false,
-          filter = function(c)
-            return c.id == client.id
-          end,
-        }
-        return
+    else
+      if not run_tool(bufnr, ft) then
+        run_lsp(bufnr)
       end
     end
   end,
