@@ -15,30 +15,33 @@ end
 mason.setup {}
 
 require('mason-lspconfig').setup {
+  -- LSP servers to install automatically
   ensure_installed = {
-    'lua_ls',
-    'pylsp',
-    -- "clangd",
-    'bashls',
-    'gopls',
-    -- "zls",
-    -- "ts_ls",
-    -- "html",
-    -- "cssls",
-    -- "jsonls",
-    -- "ansiblels",
-    -- "intelephense",
-    -- "yamlls",
-    -- "nil_ls",
-    -- "ruby_lsp",
-    -- "vimls",
-    -- "tailwindcss",
-    -- "jdtls",
-    -- "tflint",
-    -- "taplo",
-    -- "lemminx",
-    -- "sqls",
+    'lua_ls', -- Lua language server
+    -- 'pylsp',  -- Python language server
+    -- 'clangd',       -- C/C++ language server
+    -- 'bashls', -- Bash language server
+    -- 'gopls',  -- Go language server
+    -- 'zls',          -- Zig language server
+    -- 'ts_ls',        -- TypeScript / JavaScript language server
+    -- 'html',         -- HTML language server
+    -- 'cssls',        -- CSS language server
+    -- 'jsonls',       -- JSON language server
+    -- 'ansiblels',    -- Ansible language server
+    -- 'intelephense', -- PHP language server
+    -- 'yamlls',       -- YAML language server
+    -- 'nil_ls',       -- Nix language server
+    -- 'ruby_lsp',     -- Ruby language server
+    -- 'vimls',        -- Vimscript language server
+    -- 'tailwindcss',  -- Tailwind CSS language server
+    -- 'jdtls',        -- Java language server
+    -- 'tflint',       -- Terraform language server
+    -- 'taplo',        -- TOML language server
+    -- 'lemminx',      -- XML language server
+    -- 'sqls',         -- SQL language server
   },
+
+  -- Automatically install servers configured through LSP
   automatic_installation = true,
 }
 
@@ -46,11 +49,13 @@ require('mason-lspconfig').setup {
 -- Mason Tool Installer
 -- -------------------------------
 require('mason-tool-installer').setup {
+  -- Formatters and external development tools to install
   ensure_installed = {
-    -- "ruff",
-    'shfmt',
-    -- "nixpkgs-fmt",
-    'prettier',
+    -- 'ruff',         -- Python linter and formatter
+    -- 'shfmt',    -- Shell script formatter
+    -- 'nixpkgs-fmt',  -- Nix formatter
+    'prettier', -- Formatter for JS, TS, HTML, CSS, JSON, YAML, etc.
+    -- 'gofumpt',  -- Go script formatter
   },
 }
 

@@ -1,12 +1,31 @@
--- Try loading tokyonight-moon, fall back to habamax if it fails
-local theme = 'habamax'
-if pcall(vim.cmd.colorscheme, 'tokyonight-moon') then
-  theme = 'tokyonight'
+-- Colorscheme
+local themes = {
+  -- 'habamax',
+  'tokyonight-moon',
+  'gruber-darker',
+}
+
+local active_theme
+
+for _, colorscheme in ipairs(themes) do
+  if pcall(vim.cmd.colorscheme, colorscheme) then
+    active_theme = colorscheme
+    break
+  end
 end
 
-require('lualine').setup { options = { theme = theme } }
+-- Lualine
+if active_theme == 'habamax' then
+  require('lualine').setup {
+    options = {
+      theme = 'nightfly',
+    },
+  }
+else
+  require('lualine').setup {}
+end
 
--- Make background transparent for specified highlight groups
+-- Transparent backgrounds
 local transparent_groups = {
   'Normal',
   'NormalFloat',

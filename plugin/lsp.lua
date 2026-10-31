@@ -102,7 +102,13 @@ vim.lsp.config('lua_ls', {
         enable = true, -- Show inlay hints (like parameter names, return types)
       },
       format = {
-        enable = true,
+        enable = true, -- Enable Lua formatting
+        defaultConfig = {
+          indent_style = 'space', -- Use spaces instead of tabs
+          indent_size = '2', -- Use 2 spaces per indentation level
+          quote_style = 'single', -- Prefer single quotes
+          call_parentheses = 'None', -- Omit parentheses where possible
+        },
       },
     },
   },
